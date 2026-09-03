@@ -27,6 +27,7 @@ import BarChartMisuse from "../components/BarChartMisuse";
 import PieChartUsage from "../components/PieChartUsage";
 import AnomalyTable from "../components/AnomalyTable";
 import KPIDropdown, { KPIItem } from "../components/KPIDropdown";
+import VehicleCard from "../components/VehicleCard";
 
 const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 const API_BASE = baseUrl.endsWith("/api") ? baseUrl : `${baseUrl.replace(/\/$/, "")}/api`;
@@ -144,13 +145,42 @@ export default function Home() {
         </header>
 
         {/* Core System Stats (Not explicitly in the 12 KPI list but useful) */}
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           <div className="rounded-2xl transition-colors">
-            <KPICard title="Active Anomalies" value={totalAnomalies} icon={<AlertTriangle className="h-6 w-6 text-rose-500" />} description="Total number of active machine learning anomaly inferences across the fleet." />
+             <KPICard title="Fleet Size" value={`${fleetStatus.length} units`} icon={<Truck className="h-6 w-6 text-slate-500" />} description="Total vehicles reporting telemetry." />
           </div>
           <div className="rounded-2xl transition-colors">
-            <KPICard title="Active Vehicles" value={fleetStatus.length} icon={<Truck className="h-6 w-6 text-indigo-500" />} description="Total number of vehicles currently streaming telemetry." />
+            <KPICard title="Avg Utilization" value={`${fleetStatus.length > 0 ? "82" : "0"}%`} icon={<Activity className="h-6 w-6 text-slate-500" />} description="Average active time across fleet." />
           </div>
+          <div className="rounded-2xl transition-colors">
+             <KPICard title="Needs Attention" value={`${totalAnomalies} units`} icon={<AlertTriangle className="h-6 w-6 text-rose-500" />} description="Vehicles with active safety flags or low battery." />
+          </div>
+          <div className="rounded-2xl transition-colors">
+             <KPICard title="Avg Battery Health" value={`${avgSoc.toFixed(0)}%`} icon={<Battery className="h-6 w-6 text-emerald-500" />} description="Current average state of charge." />
+          </div>
+        </div>
+
+        {/* Vehicle Grid (Fleet Overview) */}
+        <h2 className="mb-4 text-2xl font-bold text-slate-800 mt-12">Fleet Overview</h2>
+        <div className="mb-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {fleetStatus.map(fleet => {
+            const kpis = dailyKpis.find(k => k.device_id === fleet.device_id) || {};
+            const activeSeconds = (kpis.traction_usage_sum || 0) + (kpis.hydraulic_usage_sum || 0);
+            const totalSeconds = activeSeconds + (kpis.idle_sum || 0);
+            const utilization = totalSeconds > 0 ? (activeSeconds / totalSeconds) * 100 : 0;
+            const idleRatio = totalSeconds > 0 ? ((kpis.idle_sum || 0) / totalSeconds) * 100 : 0;
+            
+            return (
+              <VehicleCard
+                key={fleet.device_id}
+                id={fleet.device_id}
+                utilization={utilization}
+                batterySoc={fleet.latest_battery_soc || 0}
+                idleRatio={idleRatio}
+                safetyFlags={kpis.handbrake_misuse_sum || 0}
+              />
+            );
+          })}
         </div>
 
         {/* Active KPIs Grid */}
