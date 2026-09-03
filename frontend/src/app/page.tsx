@@ -203,18 +203,18 @@ export default function Home() {
         <h2 className="mb-4 text-2xl font-bold text-slate-800 mt-12">Pending Data KPIs</h2>
         <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[
-            { id: "kpi-hydraulic-pressure", title: "Hydraulic Pressure Variance", icon: <Gauge /> },
-            { id: "kpi-load-rpm", title: "Load vs RPM Correlation", icon: <Settings /> },
-            { id: "kpi-oil-pressure", title: "Oil Pressure Stability", icon: <Droplet /> },
-            { id: "kpi-fuel-efficiency", title: "Fuel Efficiency Trend", icon: <Zap /> },
-            { id: "kpi-turbo-boost", title: "Turbo Boost Efficiency", icon: <Wind /> },
-            { id: "kpi-vibration", title: "Vibration Trend", icon: <Activity /> },
+            { id: "kpi-hydraulic-pressure", title: "Hydraulic Pressure Variance", icon: <Gauge className="h-6 w-6 text-slate-400" /> },
+            { id: "kpi-load-rpm", title: "Load vs RPM Correlation", icon: <Settings className="h-6 w-6 text-slate-400" /> },
+            { id: "kpi-oil-pressure", title: "Oil Pressure Stability", icon: <Droplet className="h-6 w-6 text-slate-400" /> },
+            { id: "kpi-fuel-efficiency", title: "Fuel Efficiency Trend", icon: <Zap className="h-6 w-6 text-slate-400" /> },
+            { id: "kpi-turbo-boost", title: "Turbo Boost Efficiency", icon: <Wind className="h-6 w-6 text-slate-400" /> },
+            { id: "kpi-vibration", title: "Vibration Trend", icon: <Activity className="h-6 w-6 text-slate-400" /> },
           ].map(kpi => (
              <div key={kpi.id} ref={el => { kpiRefs.current[kpi.id] = el }} className={`group relative overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 transition-all ${getHighlightClass(kpi.id)}`}>
               <div className="flex items-center justify-between mb-4 opacity-50">
                 <h3 className="text-sm font-medium text-slate-500">{kpi.title}</h3>
                 <div className="p-2 bg-slate-100 rounded-lg border border-slate-200">
-                  {React.cloneElement(kpi.icon as React.ReactElement, { className: "h-6 w-6 text-slate-400" })}
+                  {kpi.icon}
                 </div>
               </div>
               <div className="flex items-baseline gap-2 opacity-50">
